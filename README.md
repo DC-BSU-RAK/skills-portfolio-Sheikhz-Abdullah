@@ -1,3 +1,5 @@
+# Abdullah Mubbasher
+
 # Exercises
 The programming skills portfolio requires you to develop solutions to a series of coding exercises. These exercises will test your knowledge of the programming techniques introduced through the course of the module and are designed to give you freedom with the techniques you use to solve the challenges. When solving the exercises you should aim to select the techniques that are most appropriate for the task and allow you to demonstrate the breath of knowledge acquired through the module.
 
