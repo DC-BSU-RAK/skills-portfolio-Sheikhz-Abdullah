@@ -29,3 +29,64 @@ FONT_QUESTION = ("Segoe UI Variable", 28, "bold")
 FONT_BUTTON = ("Segoe UI", 12, "bold")
 
 MAX_QUESTIONS = 10
+
+# ---------------------------
+# Utility: Rounded Rectangle
+# ---------------------------
+def _round_rect(canvas, x1, y1, x2, y2, r=24, **kwargs):
+    """Draw a rounded rectangle on a canvas and return the id"""
+    points = [
+        x1 + r, y1,
+        x2 - r, y1,
+        x2, y1,
+        x2, y1 + r,
+        x2, y2 - r,
+        x2, y2,
+        x2 - r, y2,
+        x1 + r, y2,
+        x1, y2,
+        x1, y2 - r,
+        x1, y1 + r,
+        x1, y1
+    ]
+    return canvas.create_polygon(points, smooth=True, **kwargs)
+
+# ---------------------------
+# Main Application Class
+# ---------------------------
+class MathQuizApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Math Quiz")
+        self.root.geometry(f"{WINDOW_W}x{WINDOW_H}")
+        self.root.configure(bg=PALETTE["bg"])
+        self.root.resizable(False, False)
+
+        # quiz state
+        self.difficulty = None
+        self.current_q = 0
+        self.attempt = 1
+        self.score = 0
+        self.num1 = 0
+        self.num2 = 0
+        self.operation = "+"
+        self.max_q = MAX_QUESTIONS
+
+        # styles
+        self.style = ttk.Style(self.root)
+        self.style.theme_use("clam")
+        self.style.configure("TProgressbar", troughcolor=PALETTE["soft"], background=PALETTE["accent2"], thickness=14)
+        self.style.configure("Round.TButton", borderwidth=0, focusthickness=0)
+
+        # build menu screen by default
+        self._build_menu()
+
+
+# ---------------------------
+# Run The Application
+# ---------------------------
+if __name__ == "__main__":
+    root = tk.Tk()
+    # Avoid duplication by passing a single root object into the app
+    app = MathQuizApp(root)
+    root.mainloop()
