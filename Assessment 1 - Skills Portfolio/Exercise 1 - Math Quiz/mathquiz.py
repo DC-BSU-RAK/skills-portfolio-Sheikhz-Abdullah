@@ -156,6 +156,100 @@ class MathQuizApp:
             canvas.itemconfigure(txt, fill=PALETTE["white"])
             canvas.itemconfigure(glow, stipple="gray50")
 
+    # -----------------------
+    # Start quiz
+    # -----------------------
+    def _start_quiz(self, level):
+        self.difficulty = level
+        self.current_q = 0
+        self.attempt = 1
+        self.score = 0
+        self._build_quiz_screen()
+
+    # -----------------------
+    # Build Quiz Screen
+    # -----------------------
+    def _build_quiz_screen(self):
+        self._clear_root()
+
+        # top progress area
+        top_frame = tk.Frame(self.root, bg=PALETTE["bg"])
+        top_frame.pack(fill="x", pady=(18,6))
+
+        title_lbl = tk.Label(top_frame, text="Math Quiz — Test Your Skills", bg=PALETTE["bg"], fg=PALETTE["white"], font=FONT_TITLE)
+        title_lbl.pack(side="left", padx=26)
+
+        self.score_lbl = tk.Label(top_frame, text=f"Score: {self.score}", bg=PALETTE["bg"], fg=PALETTE["muted"], font=FONT_SUB)
+        self.score_lbl.pack(side="right", padx=26)
+
+        # center card
+        card_frame = tk.Frame(self.root, width=CARD_W, height=CARD_H, bg=PALETTE["card"])
+        card_frame.pack(pady=18)
+        card_frame.pack_propagate(False)
+
+        # draw rounded card background using canvas for the polished look
+        card_canvas = tk.Canvas(card_frame, width=CARD_W, height=CARD_H, bg=PALETTE["card"], highlightthickness=0)
+        card_canvas.place(x=0, y=0)
+        _round_rect(card_canvas, 0, 0, CARD_W, CARD_H, r=20, fill=PALETTE["card"], outline="")
+
+        # question area
+        q_area = tk.Frame(card_frame, bg=PALETTE["card"])
+        q_area.place(relx=0.5, rely=0.18, anchor="n")
+
+        self.q_label = tk.Label(q_area, text="", font=FONT_QUESTION, bg=PALETTE["card"], fg=PALETTE["white"])
+        self.q_label.pack()
+
+        # entry
+        entry_frame = tk.Frame(card_frame, bg=PALETTE["card"])
+        entry_frame.place(relx=0.5, rely=0.48, anchor="n")
+        self.answer_var = tk.StringVar()
+        self.answer_entry = tk.Entry(entry_frame, textvariable=self.answer_var, font=("Segoe UI", 20), width=8,
+                                     justify="center", bd=0, highlightthickness=2, relief="flat", bg="#071018", fg=PALETTE["accent"], insertbackground="white")
+        self.answer_entry.pack(ipady=10)
+        self.answer_entry.bind("<Return>", lambda e: self._submit_answer())
+
+        # submit button (rounded)
+        btn_canvas = tk.Canvas(card_frame, width=180, height=56, bg=PALETTE["card"], highlightthickness=0)
+        btn_canvas.place(relx=0.5, rely=0.70, anchor="n")
+        bx1, by1, bx2, by2 = 0, 0, 180, 56
+        _round_rect(btn_canvas, bx1, by1, bx2, by2, r=14, fill=PALETTE["accent"], outline="")
+        btn_canvas.create_text(90, 28, text="Submit", font=FONT_BUTTON, fill="#0b1220")
+        btn_canvas.bind("<Button-1>", lambda e: self._submit_answer())
+        btn_canvas.bind("<Enter>", lambda e: btn_canvas.itemconfigure("all", font=FONT_BUTTON))
+        btn_canvas.bind("<Leave>", lambda e: btn_canvas.itemconfigure("all", font=FONT_BUTTON))
+
+        # progress / guidance area bottom of card
+        bottom = tk.Frame(self.root, bg=PALETTE["bg"])
+        bottom.pack(fill="x", pady=(6,18))
+        # progress bar
+        self.progress = ttk.Progressbar(bottom, orient="horizontal", mode="determinate", maximum=self.max_q, length=600)
+        self.progress.pack(pady=6)
+        # hint / attempt label
+        self.hint_lbl = tk.Label(bottom, text="You have 2 attempts per question", bg=PALETTE["bg"], fg=PALETTE["muted"], font=FONT_SUB)
+        self.hint_lbl.pack()
+
+        # small control row
+        ctrl = tk.Frame(self.root, bg=PALETTE["bg"])
+        ctrl.pack(fill="x", pady=(8,0))
+        tk.Button(ctrl, text="Quit", command=self._confirm_quit, bg=PALETTE["card"], fg=PALETTE["muted"], bd=0).pack(side="right", padx=26)
+
+        # start first question
+        self.root.after(120, self._next_question)    # small delay so UI renders first
+
+    # -----------------------
+    # Generate random ints based on difficulty
+    # -----------------------
+    def _rand_pair(self):
+        if self.difficulty == "easy":
+            return random.randint(1, 9), random.randint(1, 9)
+        elif self.difficulty == "moderate":
+            return random.randint(10, 99), random.randint(10, 99)
+        else:
+            return random.randint(1000, 9999), random.randint(1000, 9999)
+
+    def _rand_op(self):
+        return random.choice(["+", "-"])
+
 # ---------------------------
 # Run The Application
 # ---------------------------
