@@ -81,6 +81,43 @@ class MathQuizApp:
         # build menu screen by default
         self._build_menu()
 
+# -----------------------
+    # Screen: Menu
+    # -----------------------
+    def _build_menu(self):
+        self._clear_root()
+        canvas = tk.Canvas(self.root, width=WINDOW_W, height=WINDOW_H, highlightthickness=0, bg=PALETTE["bg"])
+        canvas.pack(fill="both", expand=True)
+
+        # Title
+        canvas.create_text(WINDOW_W//2, 80, text="Math Quiz — Sharpen Your Skills", font=("Segoe UI Semibold", 32),
+                           fill=PALETTE["white"])
+
+        # Subtext
+        canvas.create_text(WINDOW_W//2, 120, text="Pick a difficulty to begin (10 questions).",
+                           font=FONT_SUB, fill=PALETTE["muted"])
+
+        # Center card
+        cx, cy = WINDOW_W//2, 330
+        card_x1 = cx - CARD_W//2
+        card_y1 = cy - CARD_H//2
+        card_x2 = cx + CARD_W//2
+        card_y2 = cy + CARD_H//2
+
+        _round_rect(canvas, card_x1, card_y1, card_x2, card_y2, r=28, fill=PALETTE["card"], outline="")
+
+        # Buttons row
+        btn_w = 200
+        spacing = 25
+        start_x = cx - (btn_w*3 + spacing*2)/2 + btn_w/2
+
+        self._create_glow_button(canvas, start_x, cy, "Easy", lambda: self._start_quiz("easy"), btn_w, 56, accent=PALETTE["accent"])
+        self._create_glow_button(canvas, start_x + (btn_w + spacing), cy, "Moderate", lambda: self._start_quiz("moderate"), btn_w, 56, accent=PALETTE["accent2"])
+        self._create_glow_button(canvas, start_x + 2*(btn_w + spacing), cy, "Advanced", lambda: self._start_quiz("advanced"), btn_w, 56, accent=PALETTE["danger"])
+
+        # footer small note
+        canvas.create_text(WINDOW_W//2, WINDOW_H - 30, text="Professional Build • Clean Layout • Educational Focus",
+                           font=FONT_SUB, fill=PALETTE["muted"])
 
 # ---------------------------
 # Run The Application
