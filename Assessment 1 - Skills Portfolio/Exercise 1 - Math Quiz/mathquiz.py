@@ -81,7 +81,7 @@ class MathQuizApp:
         # build menu screen by default
         self._build_menu()
 
-# -----------------------
+    # -----------------------
     # Screen: Menu
     # -----------------------
     def _build_menu(self):
@@ -118,6 +118,43 @@ class MathQuizApp:
         # footer small note
         canvas.create_text(WINDOW_W//2, WINDOW_H - 30, text="Professional Build • Clean Layout • Educational Focus",
                            font=FONT_SUB, fill=PALETTE["muted"])
+
+    # -----------------------
+    # Helper: glow button on canvas (rounded)
+    # -----------------------
+    def _create_glow_button(self, canvas, cx, cy, text, command, width=180, height=48, accent="#40C9A2"):
+        left = cx - width/2
+        right = cx + width/2
+        top = cy - height/2
+        bottom = cy + height/2
+        # outer glow: slightly bigger rounded rectangle
+        glow = _round_rect(canvas, left-3, top-3, right+3, bottom+3, r=20, fill="", outline="")
+        canvas.itemconfigure(glow, fill=accent, stipple="gray50")
+        # button rect
+        rect = _round_rect(canvas, left, top, right, bottom, r=14, fill=PALETTE["soft"], outline="")
+        # text
+        txt = canvas.create_text(cx, cy, text=text, font=FONT_BUTTON, fill=PALETTE["white"])
+        # bind area (use an invisible rect for events)
+        area = canvas.create_rectangle(left, top, right, bottom, outline="", fill="")
+        canvas.tag_bind(area, "<Enter>", lambda e: self._on_button_hover(canvas, rect, glow, txt, enter=True, accent=accent))
+        canvas.tag_bind(area, "<Leave>", lambda e: self._on_button_hover(canvas, rect, glow, txt, enter=False, accent=accent))
+        canvas.tag_bind(area, "<Button-1>", lambda e: (canvas.update(), command()))
+        # also bind text & rect so clicks on them work
+        for tag in (rect, txt):
+            canvas.tag_bind(tag, "<Button-1>", lambda e: (canvas.update(), command()))
+            canvas.tag_bind(tag, "<Enter>", lambda e: self._on_button_hover(canvas, rect, glow, txt, enter=True, accent=accent))
+            canvas.tag_bind(tag, "<Leave>", lambda e: self._on_button_hover(canvas, rect, glow, txt, enter=False, accent=accent))
+
+    def _on_button_hover(self, canvas, rect, glow, txt, enter, accent):
+        if enter:
+            canvas.itemconfigure(rect, fill=accent)
+            canvas.itemconfigure(txt, fill="#0b1220")
+            # highlight glow stronger
+            canvas.itemconfigure(glow, stipple="")
+        else:
+            canvas.itemconfigure(rect, fill=PALETTE["soft"])
+            canvas.itemconfigure(txt, fill=PALETTE["white"])
+            canvas.itemconfigure(glow, stipple="gray50")
 
 # ---------------------------
 # Run The Application
