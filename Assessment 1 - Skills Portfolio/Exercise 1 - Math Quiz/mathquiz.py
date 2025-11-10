@@ -303,6 +303,75 @@ class MathQuizApp:
                 messagebox.showinfo("Answer", f"Sorry — the correct answer was {correct}.")
                 self.root.after(200, self._next_question)
 
+    # -----------------------
+    # Progress Animation
+    # -----------------------
+    def _animate_progress(self, target_value):
+        start = self.progress["value"]
+        end = target_value
+        steps = 10
+        delta = (end - start) / steps if steps else 0
+        def step(i=0):
+            if i >= steps:
+                self.progress["value"] = end
+                return
+            self.progress["value"] = start + delta * (i+1)
+            self.root.after(20, step, i+1)
+        step()
+
+    # -----------------------
+    # Correct Popup Window (Fade Animation)
+    # -----------------------
+    def _show_correct_popup(self, earned):
+        # small top-level window centered over root
+        popup = tk.Toplevel(self.root)
+        popup.overrideredirect(True)
+        popup.configure(bg=PALETTE["card"])
+        w, h = 320, 140
+        x = self.root.winfo_x() + (WINDOW_W - w)//2
+        y = self.root.winfo_y() + (WINDOW_H - h)//2
+        popup.geometry(f"{w}x{h}+{x}+{y}")
+        # rounded bg via canvas
+        c = tk.Canvas(popup, width=w, height=h, highlightthickness=0, bg=PALETTE["card"])
+        c.pack(fill="both", expand=True)
+        _round_rect(c, 0, 0, w, h, r=18, fill=PALETTE["card"], outline="")
+
+        # content
+        c.create_text(w//2, 44, text="Correct!", font=("Segoe UI Semibold", 18), fill=PALETTE["accent2"])
+        c.create_text(w//2, 84, text=f"+{earned} points", font=("Segoe UI", 14), fill=PALETTE["white"])
+
+        # small check icon drawn (circle + tick)
+        cx = w - 48
+        cy = 48
+        # circle
+        c.create_oval(cx-22, cy-22, cx+22, cy+22, fill=PALETTE["accent"], outline="")
+        # tick (approx)
+        c.create_line(cx - 9, cy - 1, cx - 1, cy + 9, cx + 11, cy - 11,
+              width=3.5, fill=PALETTE["card"], capstyle="round")
+
+        # fade in effect (simulate by updating alpha if supported)
+        try:
+            popup.attributes("-alpha", 0.0)
+            def fade(a=0.0):
+                a += 0.08
+                if a >= 1.0:
+                    popup.attributes("-alpha", 1.0)
+                    popup.after(650, popup.destroy)
+                else:
+                    popup.attributes("-alpha", a)
+                    popup.after(25, fade, a)
+            fade()
+        except:
+            # if platform doesn't support alpha changes
+            popup.after(650, popup.destroy)
+
+    # -----------------------
+    # Update Score / Hint / Clue Labels
+    # -----------------------
+    def _update_status_labels(self):
+        self.score_lbl.config(text=f"Score: {self.score}")
+        self.hint_lbl.config(text=f"Question {self.current_q}/{self.max_q} — Attempts left: {2 - (self.attempt - 1)}",fg=PALETTE["muted"])
+
 # ---------------------------
 # Run The Application
 # ---------------------------
