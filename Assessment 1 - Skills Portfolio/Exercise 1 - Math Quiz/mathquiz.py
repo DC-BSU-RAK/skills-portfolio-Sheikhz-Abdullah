@@ -215,8 +215,6 @@ class MathQuizApp:
         _round_rect(btn_canvas, bx1, by1, bx2, by2, r=14, fill=PALETTE["accent"], outline="")
         btn_canvas.create_text(90, 28, text="Submit", font=FONT_BUTTON, fill="#0b1220")
         btn_canvas.bind("<Button-1>", lambda e: self._submit_answer())
-        btn_canvas.bind("<Enter>", lambda e: btn_canvas.itemconfigure("all", font=FONT_BUTTON))
-        btn_canvas.bind("<Leave>", lambda e: btn_canvas.itemconfigure("all", font=FONT_BUTTON))
 
         # progress / guidance area bottom of card
         bottom = tk.Frame(self.root, bg=PALETTE["bg"])
