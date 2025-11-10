@@ -249,6 +249,59 @@ class MathQuizApp:
 
     def _rand_op(self):
         return random.choice(["+", "-"])
+    
+    # -----------------------
+    # Move to next question
+    # -----------------------
+    def _next_question(self):
+        if self.current_q >= self.max_q:
+            self._show_results()
+            return
+        self.current_q += 1
+        self.attempt = 1
+        self.answer_var.set("")
+        self.answer_entry.focus_set()
+
+        self.num1, self.num2 = self._rand_pair()
+        self.operation = self._rand_op()
+
+        self.q_label.config(text=f"{self.num1}  {self.operation}  {self.num2}  =")
+        # animate small progress bump
+        self._animate_progress(self.current_q)
+        self._update_status_labels()
+
+    # -----------------------
+    # Submit answer logic
+    # -----------------------
+    def _submit_answer(self):
+        text = self.answer_var.get().strip()
+        if text == "":
+            messagebox.showwarning("Input required", "Please enter an answer before submitting.")
+            return
+        # validate integer (allow negative)
+        try:
+            user = int(text)
+        except ValueError:
+            messagebox.showwarning("Invalid", "Please enter an integer (e.g. -5, 12).")
+            return
+
+        correct = self.num1 + self.num2 if self.operation == "+" else self.num1 - self.num2
+        if user == correct:
+            earned = 10 if self.attempt == 1 else 5
+            self.score += earned
+            self._show_correct_popup(earned)
+            self._update_status_labels()
+            # short delay then next
+            self.root.after(650, self._next_question)
+        else:
+            if self.attempt == 1:
+                self.attempt += 1
+                self.hint_lbl.config(text="Incorrect — one more attempt!", fg=PALETTE["danger"])
+                # keep on same question
+            else:
+                # reveal and move on
+                messagebox.showinfo("Answer", f"Sorry — the correct answer was {correct}.")
+                self.root.after(200, self._next_question)
 
 # ---------------------------
 # Run The Application
