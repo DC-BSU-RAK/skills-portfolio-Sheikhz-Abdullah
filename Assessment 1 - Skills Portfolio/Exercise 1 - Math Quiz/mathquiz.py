@@ -372,6 +372,53 @@ class MathQuizApp:
         self.score_lbl.config(text=f"Score: {self.score}")
         self.hint_lbl.config(text=f"Question {self.current_q}/{self.max_q} — Attempts left: {2 - (self.attempt - 1)}",fg=PALETTE["muted"])
 
+    # -----------------------
+    # Final results screen
+    # -----------------------
+    def _show_results(self):
+        self._clear_root()
+        # big card
+        frame = tk.Frame(self.root, bg=PALETTE["card"], width=760, height=420)
+        frame.place(relx=0.5, rely=0.5, anchor="center")
+        frame.pack_propagate(False)
+
+        tk.Label(frame, text="Quiz Complete", font=("Segoe UI Semibold", 26), bg=PALETTE["card"], fg=PALETTE["accent2"]).pack(pady=(28,6))
+        tk.Label(frame, text=f"Final Score: {self.score} / {self.max_q * 10}", font=("Segoe UI", 18), bg=PALETTE["card"], fg=PALETTE["white"]).pack(pady=6)
+
+        rank = self._grade(self.score)
+        tk.Label(frame, text=f"Grade: {rank}", font=("Segoe UI", 16), bg=PALETTE["card"], fg=PALETTE["muted"]).pack(pady=6)
+
+        # trophy-like badge for A+
+        if self.score >= 90:
+            badge = tk.Label(frame, text="🏆 Math Champion", font=("Segoe UI Semibold", 16), bg=PALETTE["card"], fg=PALETTE["accent"])
+            badge.pack(pady=8)
+
+        btn_frame = tk.Frame(frame, bg=PALETTE["card"])
+        btn_frame.pack(pady=16)
+        tk.Button(btn_frame, text="Play Again", font=FONT_BUTTON, bg=PALETTE["accent"], fg="#051019", bd=0, command=self._build_menu).grid(row=0, column=0, padx=12)
+        tk.Button(btn_frame, text="Exit", font=FONT_BUTTON, bg=PALETTE["danger"], fg="#fff", bd=0, command=self.root.destroy).grid(row=0, column=1, padx=12)
+
+    def _grade(self, s):
+        if s >= 90: return "A+"
+        if s >= 75: return "A"
+        if s >= 60: return "B"
+        if s >= 40: return "C"
+        return "F"
+
+    # -----------------------
+    # Confirm Quit
+    # -----------------------
+    def _confirm_quit(self):
+        if messagebox.askyesno("Quit", "Are you sure you want to exit the quiz?"):
+            self.root.destroy()
+
+    # -----------------------
+    # Clears The Root Children
+    # -----------------------
+    def _clear_root(self):
+        for w in self.root.winfo_children():
+            w.destroy()
+
 # ---------------------------
 # Run The Application
 # ---------------------------
