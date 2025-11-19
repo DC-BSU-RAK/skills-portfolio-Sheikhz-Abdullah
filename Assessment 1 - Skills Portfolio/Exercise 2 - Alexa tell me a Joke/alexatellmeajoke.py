@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import random, time, threading, winsound
+import os
 
 class JokeApp:
     def __init__(self, root):
@@ -41,7 +42,9 @@ class JokeApp:
 
     def load_joke(self):
         try:
-            with open("randomJokes.txt", "r", encoding="utf-8") as f:
+            file_path = os.path.join(os.path.dirname(__file__), "randomJokes.txt")
+            with open(file_path, "r", encoding="utf-8") as f:
+
                 lines = [x.strip() for x in f if "?" in x]
             setup, punch = random.choice(lines).split("?", 1)
             self.current_joke = (setup + "?", punch.strip())
