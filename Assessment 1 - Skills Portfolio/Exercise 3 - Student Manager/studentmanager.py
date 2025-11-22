@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import statistics
-
+import os 
 
 # ------------------------------------------------------------
 # Utility Functions
@@ -18,7 +18,12 @@ def calculate_grade(percent):
         return "D"
     return "F"
 
+import os
+
 def load_students(filename="studentMarks.txt"):
+    # Make sure file is loaded from same folder as studentmanager.py
+    filename = os.path.join(os.path.dirname(__file__), filename)
+
     students = []
     try:
         with open(filename, "r") as file:
@@ -46,9 +51,11 @@ def load_students(filename="studentMarks.txt"):
                     "overall": overall,
                     "grade": grade
                 })
+
         return students
+
     except:
-        messagebox.showerror("Error", "Failed to load studentMarks.txt")
+        messagebox.showerror("Error", f"Failed to load file: {filename}")
         return []
 
 
@@ -263,6 +270,7 @@ class StudentManagerApp:
     def show_lowest_student(self):
         low = min(self.students, key=lambda x: x["overall"])
         self.display_student_card(low)
+
 
 # ------------------------------------------------------------
 # Run Application
